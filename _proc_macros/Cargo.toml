@@ -1,0 +1,12 @@
+[package]
+name = "_proc_macros"
+version = "0.0.1"
+edition = "2021"
+
+[dependencies]
+_utility_macros = { path = "../_utility_macros" }
+syn = "2.0"
+quote = "1.0"
+
+[lib]
+proc-macro = true

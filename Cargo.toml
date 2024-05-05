@@ -3,6 +3,6 @@ name = "utility-macros"
 version = "0.0.1"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
+_utility_macros = {path = "_utility_macros"}
+_proc_macros = { path = "_proc_macros"}
