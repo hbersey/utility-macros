@@ -1,4 +1,4 @@
-use super::Result;
+use crate::error::Result;
 
 pub trait HasPartial {
     type Partial;

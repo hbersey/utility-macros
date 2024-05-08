@@ -4,5 +4,5 @@ version = "0.0.1"
 edition = "2021"
 
 [dependencies]
-_utility_macros = {path = "_utility_macros"}
+_um = {path = "_um"}
 _proc_macros = { path = "_proc_macros"}

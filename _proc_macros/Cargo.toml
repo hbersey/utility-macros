@@ -4,7 +4,7 @@ version = "0.0.1"
 edition = "2021"
 
 [dependencies]
-_utility_macros = { path = "../_utility_macros" }
+_um = { path = "../_um" }
 syn = "2.0"
 quote = "1.0"
 

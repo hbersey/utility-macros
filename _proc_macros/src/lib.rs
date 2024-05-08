@@ -1,119 +1,169 @@
+use _um::{container_attributes::*, field_attributes::*, option::*};
 use proc_macro::TokenStream;
 use quote::{format_ident, quote};
-use syn::{parse_macro_input, parse_quote, Data, DeriveInput, Type, TypePath};
+use syn::{parse_macro_input, Data, DeriveInput, Field};
 
-#[proc_macro_derive(Partial)]
-pub fn partial(input: TokenStream) -> TokenStream {
+#[proc_macro_derive(Partial, attributes(partial, Derive))]
+pub fn derive_partial(input: TokenStream) -> TokenStream {
     let DeriveInput {
-        vis,
-        ident: original_ident,
+        attrs,
         data,
+        ident: full_ident,
         ..
     } = parse_macro_input!(input as DeriveInput);
 
+    let ContainerAttributesData {
+        ident: partial_ident,
+        derives,
+    } = container_attributes("partial", attrs, format_ident!("Partial{}", full_ident));
+
     let Data::Struct(data) = data else {
-        panic!("`#[partial]` can only be used on structs")
+        panic!("Expected struct")
     };
 
-    let partial_ident = format_ident!("{}Partial", original_ident);
-
-    let mut partial_fields = Vec::new();
-    let mut to_original_fields = Vec::new();
-    let mut to_partial_fields = Vec::new();
+    let mut static_assertions = Vec::new();
+    let mut struct_body = Vec::new();
+    let mut to_partial_body = Vec::new();
+    let mut to_full_body = Vec::new();
+    let mut impl_partial_eq = true;
     let mut partial_eq = Vec::new();
 
     for field in &data.fields {
-        let ident = &field.ident;
+        let Field {
+            vis,
+            ty,
+            ident: full_ident,
+            ..
+        } = field;
 
-        if let Type::Path(TypePath { path, .. }) = &field.ty {
-            if path
-                .segments
-                .first()
-                .map_or(false, |segment| segment.ident == "Option")
-            {
-                partial_fields.push(field.clone());
+        let full_ident = full_ident.clone().expect("Expected ident");
 
-                to_original_fields.push(quote! {
-                    #ident: self.#ident.clone()
+        let FieldAttributesData {
+            ident: partial_ident,
+            skip,
+        } = field_attributes("partial", field);
+
+        if skip {
+            if is_option(ty) {
+                to_full_body.push(quote! {
+                    #full_ident: None,
                 });
-
-                to_partial_fields.push(quote! {
-                    #ident: self.#ident.clone()
-                });
-
                 partial_eq.push(quote! {
-                    self.#ident == other.#ident
+                    self.#full_ident.is_none()
                 });
-
-                continue;
+            } else {
+                static_assertions.push(quote! {
+                    ::utility_macros::_um::_sa::assert_impl_all!(#ty: Default);
+                });
+                to_full_body.push(quote! {
+                    #full_ident: Default::default(),
+                });
+                impl_partial_eq = false;
             }
+            continue;
         }
 
-        partial_fields.push({
-            let mut f = field.clone();
-            let ty = &f.ty;
-            f.ty = parse_quote!(Option<#ty>);
-            f
+        let opt_ty = as_option(ty);
+        struct_body.push(quote! {
+            #vis #partial_ident: #opt_ty,
         });
 
-        to_original_fields.push(quote! {
-            #ident: self.#ident.clone().ok_or_else(|| _utility_macros::Error::MissingField(stringify!(#ident)))?
+        static_assertions.push(quote! {
+            ::utility_macros::_um::_sa::assert_impl_all!(#opt_ty: Clone);
         });
 
-        to_partial_fields.push(quote! {
-            #ident: Some(self.#ident.clone())
-        });
-
-        partial_eq.push(quote! {
-            self.#ident.clone().map_or(false, |val| val == other.#ident)
-        })
+        if is_option(ty) {
+            to_partial_body.push(quote! {
+                #partial_ident: self.#full_ident.clone(),
+            });
+            to_full_body.push(quote! {
+                #full_ident: self.#partial_ident.clone(),
+            });
+            partial_eq.push(quote! {
+                self.#full_ident == other.#partial_ident
+            });
+        } else {
+            to_partial_body.push(quote! {
+                #partial_ident: Some(self.#full_ident.clone()),
+            });
+            to_full_body.push(quote! {
+                #full_ident: self.#partial_ident.clone().ok_or_else(|| ::utility_macros::_um::error::Error::MissingField(stringify!(#partial_ident)))?,
+            });
+            partial_eq.push(quote! {
+                other.#partial_ident.clone().map_or(false, |val| self.#full_ident == val)
+            });
+        }
     }
 
+    let derives = if derives.is_empty() {
+        quote! {}
+    } else {
+        quote! {
+            #[derive(#(#derives),*)]
+        }
+    };
+
+    let partial_eq_impl = if impl_partial_eq {
+        quote! {
+            impl PartialEq<#partial_ident> for #full_ident {
+                fn eq(&self, other: &#partial_ident) -> bool {
+                    #(#partial_eq)&& *
+                }
+            }
+        }
+    } else {
+        quote! {
+            impl PartialEq<#partial_ident> for #full_ident {
+                fn eq(&self, _: &#partial_ident) -> bool {
+                    panic!("Partial equality can't be implemented for types that have skipped, non-optional fields");
+                }
+            }
+        }
+    };
+
     quote! {
-        #[derive(Clone, Debug, PartialEq)]
-        #vis struct #partial_ident {
-            #(#partial_fields),*
+        #(#static_assertions)*
+
+        #derives
+        pub struct #partial_ident {
+            #(#struct_body)*
         }
 
-        impl _utility_macros::HasPartial for #original_ident {
+        impl ::utility_macros::_um::partial::HasPartial for #full_ident {
             type Partial = #partial_ident;
 
-            fn partial(&self) -> #partial_ident {
-                #partial_ident {
-                    #(#to_partial_fields),*
+            fn partial(&self) -> Self::Partial {
+                Self::Partial {
+                    #(#to_partial_body)*
                 }
             }
         }
 
-        impl From<#original_ident> for #partial_ident {
-            fn from(value: #original_ident) -> Self {
-                _utility_macros::HasPartial::partial(&value)
-            }
-        }
+        impl ::utility_macros::_um::partial::Partial for #partial_ident {
+            type Full = #full_ident;
 
-        impl _utility_macros::Partial for #partial_ident {
-            type Full = #original_ident;
-
-            fn full(&self) -> _utility_macros::Result<#original_ident> {
-                Ok(#original_ident {
-                    #(#to_original_fields),*
+            fn full(&self) -> ::utility_macros::_um::error::Result<Self::Full> {
+                Ok(#full_ident {
+                    #(#to_full_body)*
                 })
             }
         }
 
-        impl TryFrom<#partial_ident> for #original_ident {
-            type Error = _utility_macros::Error;
-
-            fn try_from(value: #partial_ident) -> _utility_macros::Result<Self> {
-                value.full()
+        impl From<#full_ident> for #partial_ident {
+            fn from(full: #full_ident) -> Self {
+                full.partial()
             }
         }
 
-        impl PartialEq<#original_ident> for #partial_ident {
-            fn eq(&self, other: &#original_ident) -> bool {
-                #(#partial_eq)&&*
+        impl TryFrom<#partial_ident> for #full_ident {
+            type Error = ::utility_macros::_um::error::Error;
+
+            fn try_from(partial: #partial_ident) -> ::utility_macros::_um::error::Result<Self> {
+                partial.full()
             }
         }
+
+       #partial_eq_impl
     }
     .into()
 }
