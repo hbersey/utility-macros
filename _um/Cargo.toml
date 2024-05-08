@@ -3,7 +3,7 @@ name = "utility-macros-internals"
 version = "0.0.1"
 edition = "2021"
 description = "utility-macros and utiliy-macros-derive common code"
-readme = "README.md"
+readme = "../README.md"
 license = "MIT"
 repository = "https://github.com/hbersey/utility-macros"
 
