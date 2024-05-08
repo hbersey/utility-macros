@@ -30,7 +30,7 @@ impl X {
             b: Some("b".to_string()),
             c: "c".to_string(),
             d: Some("d".to_string()),
-            z: Some("z".to_string()),
+            z: None,
         }
     }
 }
