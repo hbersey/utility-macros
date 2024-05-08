@@ -3,7 +3,7 @@ use proc_macro::TokenStream;
 use quote::{format_ident, quote};
 use syn::{parse_macro_input, Data, DeriveInput, Field};
 
-#[proc_macro_derive(Partial, attributes(partial, Derive))]
+#[proc_macro_derive(Partial, attributes(partial))]
 pub fn derive_partial(input: TokenStream) -> TokenStream {
     let DeriveInput {
         attrs,
