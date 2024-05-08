@@ -8,5 +8,5 @@ license = "MIT"
 repository = "https://github.com/hbersey/utility-macros"
 
 [dependencies]
-_um = { path = "_um", version = "0.0.1" }
-_proc_macros = { path = "_proc_macros", version = "0.0.1" }
+_um = { path = "_um", version = "0.0.1", package = "utility-macros-internals" }
+_derive = { path = "_derive", version = "0.0.1", package = "utility-macros-derive" }

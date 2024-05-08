@@ -1,0 +1,12 @@
+[package]
+name = "utility-macros-derive"
+version = "0.0.1"
+edition = "2021"
+
+[dependencies]
+_um = { path = "../_um", version = "0.0.1", package = "utility-macros-internals" }
+syn = "2.0"
+quote = "1.0"
+
+[lib]
+proc-macro = true

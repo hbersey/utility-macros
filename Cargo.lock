@@ -3,26 +3,6 @@
 version = 3
 
 [[package]]
-name = "_proc_macros"
-version = "0.0.1"
-dependencies = [
- "_um",
- "quote",
- "syn",
-]
-
-[[package]]
-name = "_um"
-version = "0.0.1"
-dependencies = [
- "proc-macro2",
- "quote",
- "static_assertions",
- "syn",
- "thiserror",
-]
-
-[[package]]
 name = "proc-macro2"
 version = "1.0.81"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -87,6 +67,26 @@ checksum = "3354b9ac3fae1ff6755cb6db53683adb661634f67557942dea4facebec0fee4b"
 name = "utility-macros"
 version = "0.0.1"
 dependencies = [
- "_proc_macros",
- "_um",
+ "utility-macros-derive",
+ "utility-macros-internals",
+]
+
+[[package]]
+name = "utility-macros-derive"
+version = "0.0.1"
+dependencies = [
+ "quote",
+ "syn",
+ "utility-macros-internals",
+]
+
+[[package]]
+name = "utility-macros-internals"
+version = "0.0.1"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "static_assertions",
+ "syn",
+ "thiserror",
 ]

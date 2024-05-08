@@ -1,7 +1,11 @@
 [package]
-name = "_um"
+name = "utility-macros-internals"
 version = "0.0.1"
 edition = "2021"
+description = "utility-macros and utiliy-macros-derive common code"
+readme = "README.md"
+license = "MIT"
+repository = "https://github.com/hbersey/utility-macros"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
