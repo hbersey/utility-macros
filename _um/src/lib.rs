@@ -1,5 +1,7 @@
 pub mod error;
+
 pub mod partial;
+pub mod required;
 
 pub mod container_attributes;
 pub mod field_attributes;
