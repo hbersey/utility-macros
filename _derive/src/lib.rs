@@ -611,6 +611,10 @@ pub fn derive_record(input: TokenStream) -> TokenStream {
                 #(pub #idents: #ty),*
             }
 
+            impl utility_macros::_um::record::HasRecord for #enum_ident {
+                type Record = #ident;
+            }
+
             impl utility_macros::_um::record::Record for #ident {
                 type Keys = #enum_ident;
                 type Type = #ty;

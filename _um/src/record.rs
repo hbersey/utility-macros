@@ -1,6 +1,10 @@
 use crate::error::Result;
 use std::ops::{Index, IndexMut};
 
+pub trait HasRecord {
+    type Record: Record;
+}
+
 pub trait Record: Index<Self::Keys> + IndexMut<Self::Keys> + Sized {
     type Keys;
     type Type;

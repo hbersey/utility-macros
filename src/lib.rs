@@ -5,6 +5,7 @@ pub use _um::{
     partial::{HasPartial, Partial},
     readonly::{HasReadonly, Readonly},
     required::{HasRequired, Required},
+    record::{HasRecord, Record},
 };
 
 #[doc(hidden)]
