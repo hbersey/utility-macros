@@ -1,8 +1,10 @@
+//! A Rust library to emulate [Utility Types in TypeScript](https://www.typescriptlang.org/docs/handbook/utility-types.html)
+
 pub use _um::{
     error::{Error, Result},
     partial::{HasPartial, Partial},
+    readonly::{HasReadonly, Readonly},
     required::{HasRequired, Required},
-    readonly::{Readonly, HasReadonly}
 };
 
 #[doc(hidden)]
