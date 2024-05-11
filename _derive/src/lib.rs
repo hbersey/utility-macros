@@ -1,4 +1,4 @@
-use _um::{derive_utils::{container_attributes::*, field_attributes::*}, option::*};
+use _um::{derive::{container_attributes::*, field_attributes::*}, option::*};
 use convert_case::{Case, Casing};
 use proc_macro::TokenStream;
 use proc_macro2::{Ident, Span, TokenTree};
