@@ -101,6 +101,7 @@ dependencies = [
 name = "utility-macros-internals"
 version = "0.0.2"
 dependencies = [
+ "convert_case",
  "proc-macro2",
  "quote",
  "static_assertions",

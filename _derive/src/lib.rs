@@ -18,7 +18,13 @@ pub fn derive_partial(input: TokenStream) -> TokenStream {
     let ContainerAttributesData {
         ident: partial_ident,
         derives,
+        rename_all,
     } = container_attributes("partial", attrs, format_ident!("Partial{}", full_ident));
+
+    let field_attr_context = FieldAttributesContext {
+        helper: "partial",
+        rename_all
+    };
 
     let Data::Struct(data) = data else {
         panic!("Expected struct")
@@ -44,7 +50,7 @@ pub fn derive_partial(input: TokenStream) -> TokenStream {
         let FieldAttributesData {
             ident: partial_ident,
             skip,
-        } = field_attributes("partial", field);
+        } = field_attributes(&field_attr_context, field);
 
         if skip {
             if is_option(ty) {
@@ -184,7 +190,13 @@ pub fn derive_required(input: TokenStream) -> TokenStream {
     let ContainerAttributesData {
         ident: required_ident,
         derives,
+        rename_all,
     } = container_attributes("required", attrs, format_ident!("Required{}", type_ident));
+
+    let field_attr_context = FieldAttributesContext {
+        helper: "required",
+        rename_all
+    };
 
     let Data::Struct(data) = data else {
         panic!("Expected struct")
@@ -210,7 +222,7 @@ pub fn derive_required(input: TokenStream) -> TokenStream {
         let FieldAttributesData {
             ident: required_ident,
             skip,
-        } = field_attributes("partial", field);
+        } = field_attributes(&field_attr_context, field);
 
         if skip {
             if is_option(ty) {
@@ -350,7 +362,13 @@ pub fn derive_readonly(input: TokenStream) -> TokenStream {
     let ContainerAttributesData {
         ident: readonly_ident,
         derives,
+        rename_all,
     } = container_attributes("readonly", attrs, format_ident!("Readonly{}", type_ident));
+
+    let field_attr_context = FieldAttributesContext {
+        helper: "readonly",
+        rename_all
+    };
 
     let Data::Struct(data) = data else {
         panic!("Expected struct")
@@ -378,7 +396,7 @@ pub fn derive_readonly(input: TokenStream) -> TokenStream {
         let FieldAttributesData {
             ident: readonly_ident,
             skip,
-        } = field_attributes("readonly", field);
+        } = field_attributes(&field_attr_context, field);
 
         if skip {
             if is_option(ty) {

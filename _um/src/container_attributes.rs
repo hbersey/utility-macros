@@ -1,9 +1,13 @@
+use convert_case::Case;
 use proc_macro2::TokenTree;
 use syn::{Attribute, Ident, Meta};
+
+use crate::case::parse_case;
 
 pub struct ContainerAttributesData {
     pub ident: Ident,
     pub derives: Vec<Ident>,
+    pub rename_all: Option<Case>,
 }
 
 pub fn container_attributes(
@@ -13,6 +17,7 @@ pub fn container_attributes(
 ) -> ContainerAttributesData {
     let mut field_ident = or_ident;
     let mut derives = Vec::new();
+    let mut rename_all = None;
 
     for attr in attributes {
         let Meta::List(meta) = &attr.meta else {
@@ -77,6 +82,24 @@ pub fn container_attributes(
                         }
                     }
                 }
+                "rename_all" => {
+                    let Some(TokenTree::Punct(punct)) = tokens.next() else {
+                        panic!("Expected '='")
+                    };
+
+                    if punct.as_char() != '=' {
+                        panic!("Expected '='")
+                    }
+
+                    let Some(TokenTree::Literal(literal)) = tokens.next() else {
+                        panic!("Expected literal")
+                    };
+
+                    rename_all = Some(
+                        parse_case(literal.to_string().as_str())
+                            .unwrap_or_else(|_| panic!("Invalid case")),
+                    );
+                }
                 _ => {}
             }
         }
@@ -85,5 +108,6 @@ pub fn container_attributes(
     ContainerAttributesData {
         ident: field_ident,
         derives,
+        rename_all,
     }
 }

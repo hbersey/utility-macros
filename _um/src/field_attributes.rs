@@ -1,12 +1,21 @@
+use convert_case::{Case, Casing};
 use proc_macro2::TokenTree;
 use syn::{Field, Ident, Meta};
+
+pub struct FieldAttributesContext {
+    pub helper: &'static str,
+    pub rename_all: Option<Case>,
+}
 
 pub struct FieldAttributesData {
     pub ident: Ident,
     pub skip: bool,
 }
 
-pub fn field_attributes(helper: &'static str, field: &Field) -> FieldAttributesData {
+pub fn field_attributes(
+    FieldAttributesContext { helper, rename_all }: &FieldAttributesContext,
+    field: &Field,
+) -> FieldAttributesData {
     let mut field_ident = field.ident.clone().expect("Field must have an identifier");
     let mut skip = false;
 
@@ -44,7 +53,12 @@ pub fn field_attributes(helper: &'static str, field: &Field) -> FieldAttributesD
                 };
 
                 field_ident = ident;
-            } else if ident == "skip" {
+            } else if let Some(case) = rename_all {
+                let string = ident.to_string().to_case(case.clone());
+                field_ident = Ident::new(string.as_str(), ident.span());
+            }
+
+            if ident == "skip" {
                 skip = true;
             }
         }

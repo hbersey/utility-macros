@@ -9,6 +9,7 @@ pub mod container_attributes;
 pub mod field_attributes;
 
 pub mod option;
+pub mod case;
 
 pub mod _sa {
     pub use static_assertions::assert_impl_all;
