@@ -5,6 +5,7 @@ pub use _um::{
     readonly::{Readonly, HasReadonly}
 };
 
+#[doc(hidden)]
 pub mod _um {
     pub use _um::*;
 }

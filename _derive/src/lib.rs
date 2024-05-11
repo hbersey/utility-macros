@@ -5,6 +5,7 @@ use proc_macro2::{Ident, Span, TokenTree};
 use quote::{format_ident, quote};
 use syn::{parse_macro_input, Data, DeriveInput, Field, Meta};
 
+/// Derives the `Partial` trait for a struct.
 #[proc_macro_derive(Partial, attributes(partial))]
 pub fn derive_partial(input: TokenStream) -> TokenStream {
     let DeriveInput {
@@ -170,6 +171,7 @@ pub fn derive_partial(input: TokenStream) -> TokenStream {
     .into()
 }
 
+/// Derives the `Required` trait for a struct.
 #[proc_macro_derive(Required, attributes(required))]
 pub fn derive_required(input: TokenStream) -> TokenStream {
     let DeriveInput {
@@ -335,6 +337,7 @@ pub fn derive_required(input: TokenStream) -> TokenStream {
     .into()
 }
 
+/// Derives the `Readonly` trait for a struct.
 #[proc_macro_derive(Readonly, attributes(readonly))]
 pub fn derive_readonly(input: TokenStream) -> TokenStream {
     let DeriveInput {
@@ -514,6 +517,7 @@ pub fn derive_readonly(input: TokenStream) -> TokenStream {
     .into()
 }
 
+/// Derives the `Record` trait for a struct.
 #[proc_macro_derive(Record, attributes(record))]
 pub fn derive_record(input: TokenStream) -> TokenStream {
     let DeriveInput {
