@@ -12,6 +12,8 @@ repository = "https://github.com/hbersey/utility-macros"
 _um = { path = "../_um", version = "0.0.1", package = "utility-macros-internals" }
 syn = "2.0"
 quote = "1.0"
+proc-macro2 = "1.0"
+convert_case = "0.6"
 
 [lib]
 proc-macro = true

@@ -1,7 +1,9 @@
 use _um::{container_attributes::*, field_attributes::*, option::*};
+use convert_case::{Case, Casing};
 use proc_macro::TokenStream;
+use proc_macro2::{Ident, Span, TokenTree};
 use quote::{format_ident, quote};
-use syn::{parse_macro_input, Data, DeriveInput, Field};
+use syn::{parse_macro_input, Data, DeriveInput, Field, Meta};
 
 #[proc_macro_derive(Partial, attributes(partial))]
 pub fn derive_partial(input: TokenStream) -> TokenStream {
@@ -508,6 +510,141 @@ pub fn derive_readonly(input: TokenStream) -> TokenStream {
         }
 
         #partial_eq_impl
+    }
+    .into()
+}
+
+#[proc_macro_derive(Record, attributes(record))]
+pub fn derive_record(input: TokenStream) -> TokenStream {
+    let DeriveInput {
+        data,
+        attrs: enum_attrs,
+        ident: enum_ident,
+        ..
+    } = parse_macro_input!(input as DeriveInput);
+
+    let Data::Enum(data) = data else {
+        panic!("Expected Enum")
+    };
+
+    let mut impls = Vec::new();
+
+    for attr in &enum_attrs {
+        let Meta::List(meta) = &attr.meta else {
+            continue;
+        };
+
+        if meta
+            .path
+            .segments
+            .first()
+            .map_or(true, |s| s.ident != "record")
+        {
+            continue;
+        }
+
+        let mut tokens = meta.tokens.clone().into_iter();
+
+        let Some(TokenTree::Ident(ident)) = tokens.next() else {
+            panic!("Expected ident");
+        };
+
+        match tokens.next() {
+            Some(TokenTree::Punct(punct)) if punct.as_char() == '=' => {}
+            _ => {
+                panic!("Expected \"=>\"");
+            }
+        }
+
+        match tokens.next() {
+            Some(TokenTree::Punct(punct)) if punct.as_char() == '>' => {}
+            _ => {
+                panic!("Expected \"=>\"");
+            }
+        }
+
+        let ty = tokens.next().expect("Expected type");
+        match &ty {
+            TokenTree::Literal(_) | TokenTree::Punct(_) => panic!("Expected ident or group"),
+            _ => {}
+        }
+
+        let variants = data.variants.clone().into_iter().collect::<Vec<_>>();
+
+        let idents = variants
+            .clone()
+            .into_iter()
+            .map(|v| {
+                Ident::new(
+                    v.ident.to_string().to_case(Case::Snake).as_str(),
+                    Span::call_site(),
+                )
+            })
+            .collect::<Vec<_>>();
+
+        impls.push(quote! {
+            utility_macros::_um::_sa::assert_impl_all! (#ty: Sized);
+
+            pub struct #ident {
+                #(pub #idents: #ty),*
+            }
+
+            impl utility_macros::_um::record::Record for #ident {
+                type Keys = #enum_ident;
+                type Type = #ty;
+
+                fn keys(&self) -> Vec<Self::Keys> {
+                    vec![
+                        #(#enum_ident::#variants),*
+                    ]
+                }
+
+                fn values(&self) -> Vec<&Self::Type> {
+                    vec![
+                        #(&self.#idents),*
+                    ]
+                }
+                fn values_mut(&mut self) -> Vec<&mut Self::Type> {
+                    vec![
+                        #(&mut self.#idents),*
+                    ]
+                }
+
+                fn entries(&self) -> Vec<(Self::Keys, &Self::Type)> {
+                    vec![
+                        #((#enum_ident::#variants, &self.#idents)),*
+                    ]
+                }
+                fn entires_mut(&mut self) -> Vec<(Self::Keys, &mut Self::Type)> {
+                    vec![
+                        #((#enum_ident::#variants, &mut self.#idents)),*
+                    ]
+                }
+            }
+
+            impl std::ops::Index<#enum_ident> for #ident {
+                type Output = #ty;
+
+                fn index(&self, index: #enum_ident) -> &Self::Output {
+                    match index {
+                        #(#enum_ident::#variants => &self.#idents),*
+                    }
+                }
+            }
+
+            impl std::ops::IndexMut<#enum_ident> for #ident {
+                fn index_mut(&mut self, index: #enum_ident) -> &mut Self::Output {
+                    match index {
+                        #(#enum_ident::#variants => &mut self.#idents),*
+                    }
+                }
+
+            }
+        });
+    }
+
+    quote! {
+        #(#impls)*
     }
     .into()
 }
