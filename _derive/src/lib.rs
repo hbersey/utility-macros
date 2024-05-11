@@ -142,9 +142,9 @@ pub fn derive_partial(input: TokenStream) -> TokenStream {
         }
 
         impl ::utility_macros::_um::partial::Partial for #partial_ident {
-            type Full = #full_ident;
+            type Type = #full_ident;
 
-            fn full(&self) -> ::utility_macros::_um::error::Result<Self::Full> {
+            fn type_(&self) -> ::utility_macros::_um::error::Result<Self::Type> {
                 Ok(#full_ident {
                     #(#to_full_body)*
                 })
@@ -152,8 +152,8 @@ pub fn derive_partial(input: TokenStream) -> TokenStream {
         }
 
         impl From<#full_ident> for #partial_ident {
-            fn from(full: #full_ident) -> Self {
-                ::utility_macros::_um::partial::HasPartial::partial(&full)
+            fn from(type_: #full_ident) -> Self {
+                ::utility_macros::_um::partial::HasPartial::partial(&type_)
             }
         }
 
@@ -161,7 +161,7 @@ pub fn derive_partial(input: TokenStream) -> TokenStream {
             type Error = ::utility_macros::_um::error::Error;
 
             fn try_from(partial: #partial_ident) -> ::utility_macros::_um::error::Result<Self> {
-                ::utility_macros::_um::partial::Partial::full(&partial)
+                ::utility_macros::_um::partial::Partial::type_(&partial)
             }
         }
 

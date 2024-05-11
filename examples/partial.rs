@@ -4,7 +4,7 @@ pub fn main() {
     let full = X::new();
     let partial = full.partial();
     let also_partial = Y::from(full.clone());
-    let also_full = partial.full().expect("Failed to convert to full");
+    let also_full = partial.type_().expect("Failed to convert to full");
 
     assert_eq!(full, partial);
     assert_eq!(partial, also_partial);

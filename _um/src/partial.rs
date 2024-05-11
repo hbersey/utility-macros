@@ -7,7 +7,7 @@ pub trait HasPartial {
 }
 
 pub trait Partial {
-    type Full;
+    type Type;
 
-    fn full(&self) -> Result<Self::Full>;
+    fn type_(&self) -> Result<Self::Type>;
 }
