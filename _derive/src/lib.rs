@@ -620,6 +620,33 @@ pub fn derive_record(input: TokenStream) -> TokenStream {
                         #((#enum_ident::#variants, &mut self.#idents)),*
                     ]
                 }
+
+                fn try_from_entries(entries: Vec<(Self::Keys, Self::Type)>) -> utility_macros::_um::error::Result<Self> {
+                    #(let mut #idents = Option::<Self::Type>::None;)*
+
+                    for (k, v) in entries {
+                        match k {
+                            #(
+                                #enum_ident::#variants => {
+                                    if let Some(_) = #idents {
+                                        return Err(utility_macros::_um::error::Error::DuplicateKey(
+                                            concat!(stringify!(#enum_ident), "::", stringify!(#variants))
+                                        ));
+                                    }
+                                    #idents = Some(v);
+                                }
+                            ),*
+                        }
+                    } 
+
+                    Ok(Self {
+                        #(
+                            #idents: #idents.ok_or(utility_macros::_um::error::Error::MissingKey(
+                                concat!(stringify!(#enum_ident), "::", stringify!(#variants))
+                            ))?
+                        ),*
+                    })
+                }
             }
 
             impl std::ops::Index<#enum_ident> for #ident {
