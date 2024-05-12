@@ -1,7 +1,7 @@
 use convert_case::{Case, Casing as _};
 use proc_macro2::{Span, TokenStream, TokenTree};
 use quote::quote;
-use syn::{Data, DeriveInput, Field, Ident, Meta};
+use syn::{Data, DeriveInput, Ident, Meta};
 
 pub fn record_impl(
     DeriveInput {
