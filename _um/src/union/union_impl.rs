@@ -68,6 +68,7 @@ fn static_strs_impl(ident: Ident, literals: Vec<Literal>) -> TokenStream {
         .collect::<Vec<_>>();
 
     quote! {
+        #[derive(Clone, Debug)]
         pub enum #ident {
             #(#variants),*
         }
@@ -115,6 +116,7 @@ fn static_strs_impl(ident: Ident, literals: Vec<Literal>) -> TokenStream {
 
 fn types_impls(ident: Ident, types: Vec<Ident>) -> TokenStream {
     quote! {
+        #[derive(Clone)]
         pub enum #ident {
             #(#types(#types)),*
         }
@@ -123,6 +125,8 @@ fn types_impls(ident: Ident, types: Vec<Ident>) -> TokenStream {
         }
 
         #(
+            ::utility_macros::_um::_sa::assert_impl_all!(#types: Clone);
+
             impl TryInto<#types> for #ident {
                 type Error = ::utility_macros::_um::error::Error;
 
