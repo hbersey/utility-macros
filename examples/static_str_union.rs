@@ -3,5 +3,7 @@ use utility_macros::union;
 fn main() {}
 
 union! {
-    type A = "a" | "b" | "c";
+    type Side = "top" | "bottom";
+    #[derive(Clone)]
+    type Axis = "x" | "y";
 }

@@ -1,9 +1,10 @@
+use std::iter::Peekable;
+
+use crate::expect_token::{expect_token, peek_token};
 use convert_case::{Case, Casing as _};
-use proc_macro2::{Literal, Span, TokenStream, TokenTree};
+use proc_macro2::{Delimiter, Group, Literal, Span, TokenStream, TokenTree};
 use quote::quote;
 use syn::Ident;
-
-use crate::expect_token::expect_token;
 
 fn is_static_str(literal: &Literal) -> bool {
     let s = literal.to_string();
@@ -11,7 +12,22 @@ fn is_static_str(literal: &Literal) -> bool {
 }
 
 pub fn union_impl(item: TokenStream) -> TokenStream {
-    let mut tokens = item.into_iter();
+    let mut tokens = item.into_iter().peekable();
+    let mut output = TokenStream::new();
+
+    while let Some(_) = tokens.peek() {
+        output.extend(impl_union(&mut tokens));
+    }
+
+    output
+}
+
+pub fn impl_union(tokens: &mut Peekable<impl Iterator<Item = TokenTree>>) -> TokenStream {
+    let mut attrs = Vec::new();
+    while let Some(_) = peek_token!(tokens, punct = '#') {
+        tokens.next();
+        attrs.push(expect_token!(tokens, group, delimiter = Delimiter::Bracket));
+    }
 
     expect_token!(tokens, ident = "type");
     let ident = expect_token!(tokens, ident);
@@ -44,17 +60,15 @@ pub fn union_impl(item: TokenStream) -> TokenStream {
     }
 
     if static_str {
-        return static_strs_impl(ident, strings);
-    }
-
-    if strings.len() > 0 {
+        return impl_static_strs(ident, attrs, strings);
+    } else if strings.len() > 0 {
         panic!("expected either all variants to be &'static str or all variants to be types");
     }
 
-    types_impls(ident, types)
+    types_impls(ident, attrs, types)
 }
 
-fn static_strs_impl(ident: Ident, literals: Vec<Literal>) -> TokenStream {
+fn impl_static_strs(ident: Ident, attrs: Vec<Group>, literals: Vec<Literal>) -> TokenStream {
     let variants = literals
         .clone()
         .into_iter()
@@ -68,7 +82,7 @@ fn static_strs_impl(ident: Ident, literals: Vec<Literal>) -> TokenStream {
         .collect::<Vec<_>>();
 
     quote! {
-        #[derive(Clone, Debug)]
+        #(##attrs)*
         pub enum #ident {
             #(#variants),*
         }
@@ -114,9 +128,9 @@ fn static_strs_impl(ident: Ident, literals: Vec<Literal>) -> TokenStream {
     }
 }
 
-fn types_impls(ident: Ident, types: Vec<Ident>) -> TokenStream {
+fn types_impls(ident: Ident, attrs: Vec<Group>, types: Vec<Ident>) -> TokenStream {
     quote! {
-        #[derive(Clone)]
+        #(##attrs)*
         pub enum #ident {
             #(#types(#types)),*
         }

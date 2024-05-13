@@ -3,6 +3,7 @@ use utility_macros::union;
 fn main() {}
 
 union! {
+    #[derive(Clone)]
     type MyUnion = A | B | C;
 }
 
