@@ -31,7 +31,7 @@ pub fn record_impl(
             continue;
         }
 
-        let mut tokens = meta.tokens.clone().into_iter();
+        let mut tokens = meta.tokens.clone().into_iter().peekable();
 
         let Some(TokenTree::Ident(ident)) = tokens.next() else {
             panic!("Expected ident");
@@ -57,7 +57,35 @@ pub fn record_impl(
             _ => {}
         }
 
-        let variants = data.variants.clone().into_iter().collect::<Vec<_>>();
+        let mut derive = None;
+        match tokens.peek() {
+            Some(TokenTree::Punct(punct)) if punct.as_char() == ',' => {
+                tokens.next();
+
+                let Some(TokenTree::Ident(ident)) = tokens.next() else {
+                    panic!("Expected ident");
+                };
+
+                if ident != "derive" {
+                    panic!("Expected \"derive\"");
+                }
+
+                let Some(TokenTree::Group(group)) = tokens.next() else {
+                    panic!("Expected group");
+                };
+
+                derive = Some(group.stream());
+            },
+            _ => {}
+        }
+
+        let derive = derive.map(|ts| quote!{
+            #[derive(#ts)]
+        }).unwrap_or_else(|| quote! {
+            #[derive(Clone, Debug, PartialEq)]
+        });
+
+        let variants: Vec<syn::Variant> = data.variants.clone().into_iter().collect::<Vec<_>>();
 
         let idents = variants
             .clone()
@@ -73,6 +101,7 @@ pub fn record_impl(
         impls.push(quote! {
             utility_macros::_um::_sa::assert_impl_all! (#ty: Sized);
 
+            #derive
             pub struct #ident {
                 #(pub #idents: #ty),*
             }

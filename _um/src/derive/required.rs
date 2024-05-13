@@ -108,7 +108,9 @@ pub fn required_impl(
     }
 
     let derives = if derives.is_empty() {
-        quote! {}
+        quote! {
+            #[derive(Clone, Debug, PartialEq)]
+        }
     } else {
         quote! {
             #[derive(#(#derives),*)]
