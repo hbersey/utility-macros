@@ -4,8 +4,9 @@ pub use _um::{
     error::{Error, Result},
     partial::{HasPartial, Partial},
     readonly::{HasReadonly, Readonly},
-    required::{HasRequired, Required},
     record::{HasRecord, Record},
+    required::{HasRequired, Required},
+    string_union::StringUnion,
 };
 
 #[doc(hidden)]

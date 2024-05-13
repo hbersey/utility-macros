@@ -5,6 +5,8 @@ pub mod readonly;
 pub mod record;
 pub mod required;
 
+pub mod string_union;
+
 pub mod case;
 pub mod option;
 

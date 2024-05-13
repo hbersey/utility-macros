@@ -1,5 +1,9 @@
-use _um::derive::{
-    partial::partial_impl, readonly::readonly_impl, record::record_impl, required::required_impl,
+use _um::{
+    derive::{
+        partial::partial_impl, readonly::readonly_impl, record::record_impl,
+        required::required_impl,
+    },
+    string_union::string_union_impl,
 };
 use proc_macro::TokenStream;
 use syn::{parse_macro_input, DeriveInput};
@@ -30,4 +34,10 @@ pub fn derive_readonly(input: TokenStream) -> TokenStream {
 pub fn derive_record(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     record_impl(input).into()
+}
+
+/// Create a string union inside me.
+#[proc_macro]
+pub fn string_union(item: TokenStream) -> TokenStream {
+    string_union_impl(item.into()).into()
 }

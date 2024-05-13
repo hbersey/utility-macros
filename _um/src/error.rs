@@ -13,6 +13,9 @@ pub enum Error {
     /// A key is missing when calling `Record::from_entries()`
     #[error("Missing key `{0}`")]
     MissingKey(&'static str),
+    /// Invalid variant when calling `StringUnion::try_from_str()`
+    #[error("Invalid variant `{0}`")]
+    InvalidVariant(String),
 }
 
 /// A type alias for `std::result::Result<T, Error>`
