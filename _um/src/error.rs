@@ -2,7 +2,7 @@ use std::result::Result as StdResult;
 use thiserror::Error as ThisError;
 
 /// An error type for utility-macros
-#[derive(ThisError, Debug)]
+#[derive(ThisError, Debug, Clone)]
 pub enum Error {
     /// A required field is None when calling `Partial::type_()` or `HasRequired::required()``
     #[error("Required field `{0}` is missing")]
