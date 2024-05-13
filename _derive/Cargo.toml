@@ -1,6 +1,6 @@
 [package]
 name = "utility-macros-derive"
-version = "0.0.4"
+version = "0.0.5"
 edition = "2021"
 description = "derive macros for utility-macros"
 readme = "../README.md"
@@ -9,7 +9,7 @@ repository = "https://github.com/hbersey/utility-macros"
 
 
 [dependencies]
-_um = { path = "../_um", version = "0.0.4", package = "utility-macros-internals" }
+_um = { path = "../_um", version = "0.0.5", package = "utility-macros-internals" }
 syn = "2.0"
 
 [lib]

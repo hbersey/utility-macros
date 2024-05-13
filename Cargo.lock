@@ -80,7 +80,7 @@ checksum = "d4c87d22b6e3f4a18d4d40ef354e97c90fcb14dd91d7dc0aa9d8a1172ebf7202"
 
 [[package]]
 name = "utility-macros"
-version = "0.0.4"
+version = "0.0.5"
 dependencies = [
  "utility-macros-derive",
  "utility-macros-internals",
@@ -88,7 +88,7 @@ dependencies = [
 
 [[package]]
 name = "utility-macros-derive"
-version = "0.0.4"
+version = "0.0.5"
 dependencies = [
  "syn",
  "utility-macros-internals",
@@ -96,7 +96,7 @@ dependencies = [
 
 [[package]]
 name = "utility-macros-internals"
-version = "0.0.4"
+version = "0.0.5"
 dependencies = [
  "convert_case",
  "proc-macro2",

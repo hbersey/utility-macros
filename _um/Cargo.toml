@@ -1,6 +1,6 @@
 [package]
 name = "utility-macros-internals"
-version = "0.0.4"
+version = "0.0.5"
 edition = "2021"
 description = "utility-macros and utiliy-macros-derive common code"
 readme = "../README.md"
