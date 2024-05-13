@@ -3,7 +3,7 @@ use _um::{
         partial::partial_impl, readonly::readonly_impl, record::record_impl,
         required::required_impl,
     },
-    string_union::string_union_impl,
+    union::union_impl::union_impl,
 };
 use proc_macro::TokenStream;
 use syn::{parse_macro_input, DeriveInput};
@@ -38,6 +38,6 @@ pub fn derive_record(input: TokenStream) -> TokenStream {
 
 /// Create a string union inside me.
 #[proc_macro]
-pub fn string_union(item: TokenStream) -> TokenStream {
-    string_union_impl(item.into()).into()
+pub fn union(item: TokenStream) -> TokenStream {
+    union_impl(item.into()).into()
 }

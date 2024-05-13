@@ -2,7 +2,7 @@
 name = "utility-macros"
 version = "0.0.3"
 edition = "2021"
-description = "A Rust library to emulate Utility Types in TypeScript"
+description = "A Rust library to emulate Utility Types and Unions from TypeScript"
 readme = "README.md"
 license = "MIT"
 repository = "https://github.com/hbersey/utility-macros"
