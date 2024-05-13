@@ -1,6 +1,6 @@
 [package]
 name = "utility-macros"
-version = "0.0.3"
+version = "0.0.4"
 edition = "2021"
 description = "A Rust library to emulate Utility Types and Unions from TypeScript"
 readme = "README.md"
@@ -8,5 +8,5 @@ license = "MIT"
 repository = "https://github.com/hbersey/utility-macros"
 
 [dependencies]
-_um = { path = "_um", version = "0.0.2", package = "utility-macros-internals" }
-_derive = { path = "_derive", version = "0.0.3", package = "utility-macros-derive" }
+_um = { path = "_um", version = "0.0.4", package = "utility-macros-internals" }
+_derive = { path = "_derive", version = "0.0.4", package = "utility-macros-derive" }
