@@ -1,6 +1,6 @@
 use _um::{
     derive::{
-        partial::partial_impl, readonly::readonly_impl, record::record_impl,
+        partial::partial_impl, pick::pick_impl, readonly::readonly_impl, record::record_impl,
         required::required_impl,
     },
     union::union_impl::union_impl,
@@ -34,6 +34,12 @@ pub fn derive_readonly(input: TokenStream) -> TokenStream {
 pub fn derive_record(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     record_impl(input).into()
+}
+
+#[proc_macro_derive(Pick, attributes(pick))]
+pub fn derive_pick(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    pick_impl(input).into()
 }
 
 /// Create a string union inside me.

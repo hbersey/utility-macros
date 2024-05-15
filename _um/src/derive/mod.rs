@@ -5,3 +5,4 @@ pub mod partial;
 pub mod required;
 pub mod readonly;
 pub mod record;
+pub mod pick;

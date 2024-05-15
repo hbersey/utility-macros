@@ -1,6 +1,7 @@
 pub mod error;
 
 pub mod partial;
+pub mod pick;
 pub mod readonly;
 pub mod record;
 pub mod required;
