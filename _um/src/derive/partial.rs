@@ -109,7 +109,7 @@ pub fn partial_impl(
 
     let derives = if derives.is_empty() {
         quote! {
-            #[derive(Clone, Debug, PartialEq)]
+            #[derive(Clone, Debug, PartialEq, Default)]
         }
     } else {
         quote! {

@@ -98,6 +98,8 @@ pub fn record_impl(
             })
             .collect::<Vec<_>>();
 
+        let n = idents.len();
+
         impls.push(quote! {
             utility_macros::_um::_sa::assert_impl_all! (#ty: Sized);
 
@@ -108,13 +110,32 @@ pub fn record_impl(
 
             impl utility_macros::_um::record::HasRecord for #type_ident {
                 type Record = #ident;
+
+                fn as_str(&self) -> &'static str {
+                    match self {
+                        #(
+                            #type_ident::#variants => stringify!(#variants)
+                        ),*
+                    }
+                }
+
+                fn try_from_str(s: &str) -> utility_macros::_um::error::Result<Self> {
+                    match s {
+                        #(
+                            stringify!(#variants) => Ok(#type_ident::#variants)
+                        ),*,
+                        _ => Err(utility_macros::_um::error::Error::InvalidVariant(s.to_string()))
+                    }
+                }
             }
 
             impl utility_macros::_um::record::Record for #ident {
                 type Keys = #type_ident;
                 type Type = #ty;
 
-                fn keys(&self) -> Vec<Self::Keys> {
+                const N: usize = #n;
+
+                fn keys() -> Vec<Self::Keys> {
                     vec![
                         #(#type_ident::#variants),*
                     ]
