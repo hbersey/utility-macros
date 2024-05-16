@@ -104,10 +104,10 @@ fn impl_struct(
             impl ::utility_macros::_um::pick::HasPick for #type_ident {
                 type Pick = #ident;
 
-                fn pick(&self) -> Self::Pick {
-                    #ident {
+                fn pick(&self) -> ::utility_macros::_um::error::Result<Self::Pick> {
+                    Ok(#ident {
                         #(#fields: self.#fields.clone()),*
-                    }
+                    })
                 }
             }
 
@@ -122,8 +122,118 @@ fn impl_struct(
     }
 }
 
-fn impl_enum(data: DataEnum, input: DeriveInput) -> TokenStream {
-    quote! {}
+fn impl_enum(
+    DataEnum {
+        variants: type_variants,
+        ..
+    }: DataEnum,
+    DeriveInput {
+        ident: type_ident,
+        attrs: type_attrs,
+        ..
+    }: DeriveInput,
+) -> TokenStream {
+    let mut impls = Vec::new();
+    for attr in &type_attrs {
+        let Meta::List(meta) = &attr.meta else {
+            continue;
+        };
+
+        if meta
+            .path
+            .segments
+            .first()
+            .map_or(true, |s| s.ident != "pick")
+        {
+            continue;
+        }
+
+        let mut tokens = meta.tokens.clone().into_iter().peekable();
+
+        let ident = expect_token!(tokens, ident);
+        expect_token!(tokens, =>);
+
+        let mut variants = Vec::new();
+        let mut derives = Vec::new();
+
+        loop {
+            let variant = expect_token!(tokens, ident);
+
+            variants.push(variant);
+
+            if peek_token!(tokens, punct = ',').is_some() {
+                tokens.next();
+
+                expect_token!(tokens, ident = "derive");
+                let group = expect_token!(tokens, group, delimiter = Delimiter::Parenthesis);
+
+                let mut group_tokens = group.stream().into_iter().peekable();
+
+                loop {
+                    let derive = expect_token!(group_tokens, ident);
+
+                    derives.push(derive);
+
+                    if group_tokens.peek().is_none() {
+                        break;
+                    }
+
+                    expect_token!(group_tokens, punct = ',');
+                }
+
+                break;
+            } else if tokens.peek().is_none() {
+                break;
+            }
+
+            expect_token!(tokens, punct = '|');
+        }
+
+        let remaining_variants = type_variants
+            .iter()
+            .filter(|v| !variants.contains(&v.ident))
+            .collect::<Vec<_>>();
+
+        let derives_impl = if derives.is_empty() {
+            quote! {
+                #[derive(PartialEq, Clone, Debug)]
+            }
+        } else {
+            quote! {
+                #[derive(#(#derives),*)]
+            }
+        };
+
+        impls.push(quote! {
+            #derives_impl
+            pub enum #ident {
+                #(#variants),*
+            }
+
+            impl ::utility_macros::_um::pick::HasPick for #type_ident {
+                type Pick = #ident;
+
+                fn pick(&self) -> ::utility_macros::_um::error::Result<Self::Pick> {
+                    match self {
+                        #(
+                            Self::#variants => Ok(Self::Pick::#variants),
+                        )*
+                        #(
+                            Self::#remaining_variants => Err(::utility_macros::_um::error::Error::InvalidVariant(stringify!(#remaining_variants).to_string())),
+                        )*
+                    }
+                }
+            }
+
+            impl ::utility_macros::_um::pick::Pick for #ident {
+                type Type = #ident;
+            }
+        });
+    }
+
+    quote! {
+        #(#impls)*
+    }
 }
 
 pub fn pick_impl(input: DeriveInput) -> TokenStream {

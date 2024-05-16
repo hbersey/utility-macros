@@ -1,7 +1,9 @@
-pub trait HasPick {
-    type Pick: Pick;
+use crate::error::Result;
 
-    fn pick(&self) -> Self::Pick;
+pub trait HasPick {
+    type Pick;
+
+    fn pick(&self) -> Result<Self::Pick>;
 }
 
 pub trait Pick {

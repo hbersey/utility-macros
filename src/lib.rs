@@ -6,6 +6,7 @@ pub use _um::{
     readonly::{HasReadonly, Readonly},
     record::{HasRecord, Record},
     required::{HasRequired, Required},
+    pick::{HasPick, Pick},
     union::{static_str_union::StaticStrUnion, union::Union},
 };
 

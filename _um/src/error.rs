@@ -13,7 +13,7 @@ pub enum Error {
     /// A key is missing when calling `Record::from_entries()`
     #[error("Missing key `{0}`")]
     MissingKey(&'static str),
-    /// Invalid variant when calling `StringUnion::try_from_str()` or `HasRecord::try_from_str()`
+    /// Invalid variant when calling `StringUnion::try_from_str()`, `HasRecord::try_from_str()` or `HasPick::pick()`
     #[error("Invalid variant `{0}`")]
     InvalidVariant(String),
 }
