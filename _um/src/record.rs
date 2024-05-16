@@ -4,7 +4,7 @@ use std::ops::{Index, IndexMut};
 /// A trait for types that have a record representation.
 pub trait HasRecord: Sized {
     /// The record representation of the type.
-    type Record;
+    type Record: Record<Keys = Self>;
 
     /// Converts the type to its record representation.
     fn as_str(&self) -> &'static str;
@@ -16,7 +16,7 @@ pub trait HasRecord: Sized {
 pub trait Record: Index<Self::Keys> + IndexMut<Self::Keys> + Sized {
     /// The type that the record representation is for.
     type Keys: HasRecord<Record = Self>;
-    /// The type that the record representation is for.
+    /// The type that of the records values.
     type Type;
 
     /// The number of fields in the record.

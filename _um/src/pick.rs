@@ -3,7 +3,7 @@ use crate::error::Result;
 /// A trait for types that have a pick representation.
 pub trait HasPick {
     /// The pick representation of the type.
-    type Pick;
+    type Pick: Pick<Type = Self>;
 
     /// Converts the type to its pick representation.
     fn pick(&self) -> Result<Self::Pick>;
@@ -12,5 +12,5 @@ pub trait HasPick {
 /// A trait for pick representations of types.
 pub trait Pick {
     /// The type that the pick representation is for.
-    type Type;
+    type Type: HasPick<Pick = Self>;
 }
