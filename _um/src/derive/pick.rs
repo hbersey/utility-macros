@@ -216,7 +216,7 @@ fn impl_enum(
                 fn pick(&self) -> ::utility_macros::_um::error::Result<Self::Pick> {
                     match self {
                         #(
-                            Self::#variants => Ok(Self::Pick::#variants),
+                            Self::#variants => Ok(#ident::#variants),
                         )*
                         #(
                             Self::#remaining_variants => Err(::utility_macros::_um::error::Error::InvalidVariant(stringify!(#remaining_variants).to_string())),
@@ -226,7 +226,7 @@ fn impl_enum(
             }
 
             impl ::utility_macros::_um::pick::Pick for #ident {
-                type Type = #ident;
+                type Type = #type_ident;
             }
         });
     }
