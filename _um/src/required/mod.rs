@@ -1,5 +1,8 @@
 use crate::error::Result;
 
+mod required_impl;
+pub use required_impl::required_impl as derive;
+
 /// A trait for types that have a required representation.
 pub trait HasRequired {
     /// The required representation of the type.

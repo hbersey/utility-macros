@@ -3,11 +3,11 @@
 pub use _um::{
     error::{Error, Result},
     partial::{HasPartial, Partial},
+    pick::{HasPick, Pick},
     readonly::{HasReadonly, Readonly},
     record::{HasRecord, Record},
     required::{HasRequired, Required},
-    pick::{HasPick, Pick},
-    union::{static_str_union::StaticStrUnion, union::Union},
+    union::{StaticStrUnion, Union},
 };
 
 #[doc(hidden)]

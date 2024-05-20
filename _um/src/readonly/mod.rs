@@ -1,3 +1,6 @@
+mod readonly_impl;
+pub use readonly_impl::readonly_impl as derive;
+
 /// A trait for types that have a readonly version.
 pub trait HasReadonly {
     /// The readonly version of the type.

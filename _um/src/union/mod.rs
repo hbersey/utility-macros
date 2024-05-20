@@ -1,4 +1,8 @@
-pub mod static_str_union;
-pub mod union;
+mod static_str_union;
+pub use static_str_union::StaticStrUnion;
 
-pub mod union_impl;
+mod union;
+pub use union::Union;
+
+mod union_impl;
+pub use union_impl::union_impl as derive;

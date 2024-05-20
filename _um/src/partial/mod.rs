@@ -1,5 +1,8 @@
 use crate::error::Result;
 
+mod partial_impl;
+pub use partial_impl::partial_impl as derive;
+
 /// A trait for types that have a partial representation.
 pub trait HasPartial {
     /// The partial representation of the type.

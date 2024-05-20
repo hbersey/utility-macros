@@ -1,5 +1,8 @@
 use crate::error::Result;
 
+mod pick_impl;
+pub use pick_impl::pick_impl as derive;
+
 /// A trait for types that have a pick representation.
 pub trait HasPick {
     /// The pick representation of the type.

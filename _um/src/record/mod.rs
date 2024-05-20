@@ -1,6 +1,9 @@
 use crate::error::Result;
 use std::ops::{Index, IndexMut};
 
+mod record_impl;
+pub use record_impl::record_impl as derive;
+
 /// A trait for types that have a record representation.
 pub trait HasRecord: Sized {
     /// The record representation of the type.
