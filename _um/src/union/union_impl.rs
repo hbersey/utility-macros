@@ -6,7 +6,7 @@ use proc_macro2::{Delimiter, Group, Literal, Span, TokenStream, TokenTree};
 use quote::quote;
 use syn::Ident;
 
-fn is_static_str(literal: &Literal) -> bool {
+pub fn is_static_str(literal: &Literal) -> bool {
     let s = literal.to_string();
     s.starts_with("\"") && s.ends_with("\"")
 }
