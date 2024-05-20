@@ -5,7 +5,7 @@ fn main() {
         id: 0,
         name: Some("Henry".to_string()),
         age: Some(100),
-        password: Some("1234".to_string()),
+        password: None,
     };
 
     let all = details.required().unwrap();

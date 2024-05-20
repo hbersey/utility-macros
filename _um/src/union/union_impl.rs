@@ -87,7 +87,7 @@ fn impl_static_strs(ident: Ident, attrs: Vec<Group>, literals: Vec<Literal>) -> 
             #(#variants),*
         }
 
-        impl ::utility_macros::_um::union::static_str_union::StaticStrUnion for #ident {
+        impl ::utility_macros::_um::union::StaticStrUnion for #ident {
             fn strs() -> Vec<&'static str>
             where
                 Self: Sized
@@ -114,7 +114,7 @@ fn impl_static_strs(ident: Ident, attrs: Vec<Group>, literals: Vec<Literal>) -> 
 
         impl Into<&'static str> for #ident {
             fn into(self) -> &'static str {
-                ::utility_macros::_um::union::static_str_union::StaticStrUnion::as_str(&self)
+                ::utility_macros::_um::union::StaticStrUnion::as_str(&self)
             }
         }
 
@@ -122,7 +122,7 @@ fn impl_static_strs(ident: Ident, attrs: Vec<Group>, literals: Vec<Literal>) -> 
             type Err = ::utility_macros::_um::error::Error;
 
             fn from_str(s: &str) -> ::utility_macros::_um::error::Result<Self> {
-                ::utility_macros::_um::union::static_str_union::StaticStrUnion::try_from_str(s)
+                ::utility_macros::_um::union::StaticStrUnion::try_from_str(s)
             }
         }
     }
@@ -135,7 +135,7 @@ fn types_impls(ident: Ident, attrs: Vec<Group>, types: Vec<Ident>) -> TokenStrea
             #(#types(#types)),*
         }
 
-        impl ::utility_macros::_um::union::union::Union for #ident {
+        impl ::utility_macros::_um::union::Union for #ident {
         }
 
         #(
