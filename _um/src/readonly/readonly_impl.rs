@@ -7,7 +7,7 @@ use crate::{
         container_attributes::{container_attributes, ContainerAttributesData},
         field_attributes::{field_attributes, FieldAttributesContext, FieldAttributesData},
     },
-    option::is_option,
+    utils::TypeExt as _,
 };
 
 pub fn readonly_impl(
@@ -58,7 +58,7 @@ pub fn readonly_impl(
         } = field_attributes(&field_attr_context, field);
 
         if skip {
-            if is_option(ty) {
+            if ty.is_option() {
                 to_type_body.push(quote! {
                     #type_ident: None,
                 });

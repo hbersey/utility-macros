@@ -11,8 +11,6 @@ pub mod union;
 #[deprecated(note = "Use `_um::utils::CaseExt` instead.")]
 pub mod case;
 pub mod expect_token;
-#[deprecated(note = "Use `_um::utils::OptionExt` instead.")]
-pub mod option;
 
 pub mod attributes;
 pub mod derive;

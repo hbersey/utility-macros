@@ -7,7 +7,7 @@ use crate::{
         container_attributes::{container_attributes, ContainerAttributesData},
         field_attributes::{field_attributes, FieldAttributesContext, FieldAttributesData},
     },
-    option::{as_required, is_option},
+    utils::TypeExt,
 };
 
 pub fn required_impl(
@@ -56,7 +56,7 @@ pub fn required_impl(
         } = field_attributes(&field_attr_context, field);
 
         if skip {
-            if is_option(ty) {
+            if ty.is_option() {
                 to_type_body.push(quote! {
                     #type_ident: None,
                 });
@@ -75,7 +75,7 @@ pub fn required_impl(
             continue;
         }
 
-        let required_ty = as_required(ty);
+        let required_ty = ty.as_required();
         struct_body.push(quote! {
             #vis #required_ident: #required_ty,
         });
@@ -84,7 +84,7 @@ pub fn required_impl(
             ::utility_macros::_um::_sa::assert_impl_all!(#required_ty: Clone);
         });
 
-        if is_option(ty) {
+        if ty.is_option() {
             to_required_body.push(quote! {
                 #required_ident: self.#type_ident.clone().ok_or_else(|| ::utility_macros::_um::error::Error::MissingField(stringify!(#required_ident)))?,
             });
