@@ -8,13 +8,10 @@ pub mod required;
 
 pub mod union;
 
-#[deprecated(note = "Use `_um::utils::CaseExt` instead.")]
-pub mod case;
-pub mod expect_token;
-
 pub mod attributes;
 pub mod derive;
 
+pub mod expect_token;
 pub mod utils;
 
 pub mod _sa {
