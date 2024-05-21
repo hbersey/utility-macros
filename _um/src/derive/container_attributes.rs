@@ -2,7 +2,7 @@ use convert_case::Case;
 use proc_macro2::TokenTree;
 use syn::{Attribute, Ident, Meta};
 
-use crate::case::parse_case;
+use crate::utils::CaseExt as _;
 
 pub struct ContainerAttributesData {
     pub ident: Ident,
@@ -96,7 +96,7 @@ pub fn container_attributes(
                     };
 
                     rename_all = Some(
-                        parse_case(literal.to_string().as_str())
+                        Case::from_string(literal.to_string())
                             .unwrap_or_else(|_| panic!("Invalid case")),
                     );
                 }

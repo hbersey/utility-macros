@@ -16,6 +16,15 @@ pub enum Error {
     /// Invalid variant when calling `StringUnion::try_from_str()`, `HasRecord::try_from_str()` or `HasPick::pick()`
     #[error("Invalid variant `{0}`")]
     InvalidVariant(String),
+    /// Invalid attribute item when calling `ContainerAttribute::parse_container_attribute()`
+    #[error("Invalid attribute item`{0}`")]
+    InvalidAttributeItem(String),
+    /// Invalid case when calling `Case::from_str()`
+    #[error("Invalid case `{0}`")]
+    InvalidCase(String),
+    /// Invalid derive statement
+    #[error("Invalid derive statement `{0}`")]
+    InvalidDeriveStatement(String),
 }
 
 /// A type alias for `std::result::Result<T, Error>`

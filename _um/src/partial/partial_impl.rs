@@ -3,11 +3,11 @@ use quote::{format_ident, quote};
 use syn::{Data, DeriveInput, Field};
 
 use crate::{
-    derive::{
-        container_attributes::{container_attributes, ContainerAttributesData},
-        field_attributes::{field_attributes, FieldAttributesContext, FieldAttributesData},
+    attributes::{
+        parse_container_attributes, parse_field_variant_attributes, ContainerAttributes as _,
+        FieldVariantAttributes as _,
     },
-    option::{as_option, is_option},
+    utils::TypeExt as _,
 };
 
 pub fn partial_impl(
@@ -18,15 +18,9 @@ pub fn partial_impl(
         ..
     }: DeriveInput,
 ) -> TokenStream {
-    let ContainerAttributesData {
-        ident: partial_ident,
-        derives,
-        rename_all,
-    } = container_attributes("partial", attrs, format_ident!("Partial{}", type_ident));
-
-    let field_attr_context = FieldAttributesContext {
-        helper: "partial",
-        rename_all,
+    let attrs = match parse_container_attributes(attrs) {
+        Ok(attrs) => attrs,
+        Err(e) => panic!("{}", e),
     };
 
     let Data::Struct(data) = data else {
@@ -49,14 +43,18 @@ pub fn partial_impl(
         } = field;
 
         let type_ident = type_ident.clone().expect("Expected ident");
+        let partial_ident = attrs.field_ident(type_ident.clone());
 
-        let FieldAttributesData {
-            ident: partial_ident,
-            skip,
-        } = field_attributes(&field_attr_context, field);
+        let field_attrs = match parse_field_variant_attributes(field.attrs.clone()) {
+            Ok(attrs) => attrs,
+            Err(e) => panic!("{}", e),
+        };
+        let partial_ident = field_attrs.ident(partial_ident);
+
+        let skip = field_attrs.skip();
 
         if skip {
-            if is_option(ty) {
+            if ty.is_option() {
                 to_full_body.push(quote! {
                     #type_ident: None,
                 });
@@ -75,7 +73,7 @@ pub fn partial_impl(
             continue;
         }
 
-        let opt_ty = as_option(ty);
+        let opt_ty = ty.as_option();
         struct_body.push(quote! {
             #vis #partial_ident: #opt_ty,
         });
@@ -84,7 +82,7 @@ pub fn partial_impl(
             ::utility_macros::_um::_sa::assert_impl_all!(#opt_ty: Clone);
         });
 
-        if is_option(ty) {
+        if ty.is_option() {
             to_partial_body.push(quote! {
                 #partial_ident: self.#type_ident.clone(),
             });
@@ -107,15 +105,13 @@ pub fn partial_impl(
         }
     }
 
-    let derives = if derives.is_empty() {
-        quote! {
-            #[derive(Clone, Debug, PartialEq, Default)]
-        }
-    } else {
-        quote! {
-            #[derive(#(#derives),*)]
-        }
-    };
+    let partial_ident = attrs.ident(format_ident!("Partial{}", type_ident));
+
+    let derive_statement = attrs
+        .derive_statement("PartialEq, Clone, Debug, Default")
+        .unwrap_or_else(|e| {
+            panic!("{}", e);
+        });
 
     let partial_eq_impl = if impl_partial_eq {
         quote! {
@@ -138,7 +134,7 @@ pub fn partial_impl(
     quote! {
         #(#static_assertions)*
 
-        #derives
+        #derive_statement
         pub struct #partial_ident {
             #(#struct_body)*
         }

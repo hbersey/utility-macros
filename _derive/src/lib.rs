@@ -3,7 +3,8 @@ use proc_macro::TokenStream;
 use syn::{parse_macro_input, DeriveInput};
 
 // Derives the `Partial` trait for a struct.
-#[proc_macro_derive(Partial, attributes(partial))]
+// TODO remove partial attribute
+#[proc_macro_derive(Partial, attributes(utility_macros))]
 pub fn derive_partial(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     partial::derive(input).into()

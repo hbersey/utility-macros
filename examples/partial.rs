@@ -12,14 +12,14 @@ pub fn main() {
 }
 
 #[derive(Partial, PartialEq, Clone, Debug)]
-#[partial(name = Y, derive(PartialEq, Clone, Debug))]
+#[utility_macros(name = "Y", derive = "Partial, PartialEq, Clone, Debug")]
 pub struct X {
-    #[partial(name = aa)]
+    #[utility_macros(name = "aa")]
     pub a: String,
     pub b: Option<String>,
     c: String,
     d: Option<String>,
-    #[partial(skip)]
+    #[utility_macros(skip)]
     pub z: Option<String>,
 }
 

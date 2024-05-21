@@ -39,6 +39,21 @@ macro_rules! expect_token {
         expect_token!($tokens, punct = '=');
         expect_token!($tokens, punct = '>');
     };
+    ($tokens:ident, literal) => {
+        match $tokens.next() {
+            Some(proc_macro2::TokenTree::Literal(literal)) => literal,
+            _ => panic!("expected literal"),
+        }
+    };
+    ($tokens:ident, string) => {{
+        let literal = expect_token!($tokens, literal);
+        let s = literal.to_string();
+        if s.starts_with('"') && s.ends_with('"') {
+            s[1..s.len() - 1].to_string()
+        } else {
+            panic!("expected string literal");
+        }
+    }};
 }
 
 macro_rules! peek_token {
