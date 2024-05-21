@@ -2,7 +2,7 @@ use proc_macro2::{Delimiter, TokenStream};
 use quote::quote;
 use syn::{Data, DataEnum, DataStruct, DeriveInput, Meta};
 
-use crate::expect_token::{expect_token, peek_token};
+use crate::utils::{expect_token, peek_token};
 
 fn impl_struct(
     DataStruct {

@@ -6,8 +6,7 @@ use syn::{Attribute, Ident, Meta};
 
 use crate::{
     error::{Error, Result},
-    expect_token::expect_token,
-    utils::CaseExt as _,
+    utils::{expect_token, CaseExt as _},
 };
 
 pub enum ContainerAttribute {

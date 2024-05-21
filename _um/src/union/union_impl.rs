@@ -1,10 +1,11 @@
 use std::iter::Peekable;
 
-use crate::expect_token::{expect_token, peek_token};
 use convert_case::{Case, Casing as _};
 use proc_macro2::{Delimiter, Group, Literal, Span, TokenStream, TokenTree};
 use quote::quote;
 use syn::Ident;
+
+use crate::utils::{expect_token, peek_token};
 
 pub fn is_static_str(literal: &Literal) -> bool {
     let s = literal.to_string();

@@ -11,7 +11,6 @@ pub mod union;
 pub mod attributes;
 pub mod derive;
 
-pub mod expect_token;
 pub mod utils;
 
 pub mod _sa {

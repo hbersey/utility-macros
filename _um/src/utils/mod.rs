@@ -6,3 +6,6 @@ pub use literal_ext::LiteralExt;
 
 mod type_ext;
 pub use type_ext::TypeExt;
+
+mod token_utils;
+pub(crate) use token_utils::{expect_token, peek_token};
