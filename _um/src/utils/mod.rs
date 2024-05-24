@@ -4,6 +4,9 @@ pub use case_ext::CaseExt;
 mod literal_ext;
 pub use literal_ext::LiteralExt;
 
+mod result_ext;
+pub use result_ext::ResultExt;
+
 mod type_ext;
 pub use type_ext::TypeExt;
 

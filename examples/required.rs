@@ -18,12 +18,12 @@ fn main() {
 }
 
 #[derive(Required, Debug, Clone, PartialEq)]
-#[required(name = AllDetails, derive(PartialEq, Debug))]
+#[utility_macros(name = "AllDetails", derive = "PartialEq, Debug")]
 pub struct Details {
-    #[required(name = details_id)]
+    #[utility_macros(name = "details_id")]
     pub id: u32,
     pub name: Option<String>,
     pub age: Option<u8>,
-    #[required(skip)]
+    #[utility_macros(skip)]
     pub password: Option<String>,
 }

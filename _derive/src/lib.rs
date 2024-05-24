@@ -11,7 +11,7 @@ pub fn derive_partial(input: TokenStream) -> TokenStream {
 }
 
 /// Derives the `Required` trait for a struct.
-#[proc_macro_derive(Required, attributes(required))]
+#[proc_macro_derive(Required, attributes(utility_macros))]
 pub fn derive_required(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     required::derive(input).into()

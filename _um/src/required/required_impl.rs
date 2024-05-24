@@ -3,11 +3,11 @@ use quote::{format_ident, quote};
 use syn::{Data, DeriveInput, Field};
 
 use crate::{
-    derive::{
-        container_attributes::{container_attributes, ContainerAttributesData},
-        field_attributes::{field_attributes, FieldAttributesContext, FieldAttributesData},
+    attributes::{
+        parse_container_attributes, parse_field_variant_attributes, ContainerAttributes as _,
+        FieldVariantAttributes as _,
     },
-    utils::TypeExt,
+    utils::{ResultExt as _, TypeExt as _},
 };
 
 pub fn required_impl(
@@ -18,16 +18,7 @@ pub fn required_impl(
         ..
     }: DeriveInput,
 ) -> TokenStream {
-    let ContainerAttributesData {
-        ident: required_ident,
-        derives,
-        rename_all,
-    } = container_attributes("required", attrs, format_ident!("Required{}", type_ident));
-
-    let field_attr_context = FieldAttributesContext {
-        helper: "required",
-        rename_all,
-    };
+    let attrs = parse_container_attributes(attrs).or_panic();
 
     let Data::Struct(data) = data else {
         panic!("Expected struct")
@@ -44,18 +35,16 @@ pub fn required_impl(
         let Field {
             vis,
             ty,
-            ident: full_ident,
+            ident: type_ident,
             ..
         } = field;
 
-        let type_ident = full_ident.clone().expect("Expected ident");
+        let type_ident = type_ident.clone().expect("Expected ident");
+        let required_ident = attrs.field_ident(type_ident.clone());
+        let field_attrs = parse_field_variant_attributes(field.attrs.clone()).or_panic();
+        let required_ident = field_attrs.ident(required_ident);
 
-        let FieldAttributesData {
-            ident: required_ident,
-            skip,
-        } = field_attributes(&field_attr_context, field);
-
-        if skip {
+        if field_attrs.skip() {
             if ty.is_option() {
                 to_type_body.push(quote! {
                     #type_ident: None,
@@ -107,15 +96,9 @@ pub fn required_impl(
         }
     }
 
-    let derives = if derives.is_empty() {
-        quote! {
-            #[derive(Clone, Debug, PartialEq)]
-        }
-    } else {
-        quote! {
-            #[derive(#(#derives),*)]
-        }
-    };
+    let required_ident = attrs.ident(format_ident!("Required{}", type_ident));
+
+    let derive_statement = attrs.derive_statement("PartialEq, Clone, Debug").or_panic();
 
     let partial_eq_impl = if impl_partial_eq {
         quote! {
@@ -138,7 +121,7 @@ pub fn required_impl(
     quote! {
         #(#static_assertions)*
 
-        #derives
+        #derive_statement
         pub struct #required_ident {
             #(#struct_body)*
         }
