@@ -16,7 +16,7 @@ pub enum ContainerAttribute {
     Where(String),
 }
 
-fn parse_container_attribute(
+pub fn parse_container_attribute(
     tokens: &mut Peekable<impl Iterator<Item = TokenTree>>,
 ) -> Result<ContainerAttribute> {
     let ident = expect_token!(tokens, ident);

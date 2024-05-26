@@ -3,7 +3,7 @@ use utility_macros::Pick;
 fn main() {}
 
 #[derive(Pick)]
-#[pick(Contact => email | phone_number)]
+#[utility_macros("Contact" => "email" | "phone_number")]
 pub struct Person {
     pub name: String,
     pub age: u32,

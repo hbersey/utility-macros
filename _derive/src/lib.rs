@@ -31,7 +31,7 @@ pub fn derive_record(input: TokenStream) -> TokenStream {
     record::derive(input).into()
 }
 
-#[proc_macro_derive(Pick, attributes(pick))]
+#[proc_macro_derive(Pick, attributes(utility_macros))]
 pub fn derive_pick(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     pick::derive(input).into()
