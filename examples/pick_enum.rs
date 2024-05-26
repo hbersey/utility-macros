@@ -8,7 +8,7 @@ pub enum Languages {
     C { version: u32 },
     Cpp(u32),
     ObjectiveC,
-    JavaScript,
-    Python,
+    JavaScript { version: u32 },
+    Python(u32),
     Rust,
 }

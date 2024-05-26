@@ -1,8 +1,8 @@
-mod impl_struct_fields_named;
-use impl_struct_fields_named::impl_struct_fields_named;
+mod pick_impl_struct_fields_named;
+use pick_impl_struct_fields_named::impl_struct_fields_named;
 
-mod impl_enum;
-use impl_enum::impl_enum;
+mod pick_impl_enum;
+use pick_impl_enum::impl_enum;
 
 use proc_macro2::TokenStream;
 use quote::quote;

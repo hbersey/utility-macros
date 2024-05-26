@@ -68,7 +68,6 @@ pub(crate) fn impl_enum(
 
                     pick_fn_body.push(quote!{
                         #type_ident::#type_variant_ident { #(#field_idents),* } => Ok(#pick_ident::#pick_variant_ident { #(#field_idents: #field_idents.clone()),* }),
-                        _ => Err(::utility_macros::_um::error::Error::InvalidVariant(stringify!(#type_variant_ident).to_string())),
                     })
                 }
                 Fields::Unnamed(_) => {
@@ -78,19 +77,36 @@ pub(crate) fn impl_enum(
 
                     pick_fn_body.push(quote!{
                         #type_ident::#type_variant_ident(#(#idents),*) => Ok(#pick_ident::#pick_variant_ident(#(#idents.clone()),*)),
-                        _ => Err(::utility_macros::_um::error::Error::InvalidVariant(stringify!(#type_variant_ident).to_string())),
                     })
                 }
-                Fields::Unit => {
-                    pick_fn_body.push(quote!{
-                        #type_ident::#type_variant_ident => Ok(#pick_ident::#pick_variant_ident),
-                        _ => Err(::utility_macros::_um::error::Error::InvalidVariant(stringify!(#type_variant_ident).to_string())),
-                    })
-                }
+                Fields::Unit => pick_fn_body.push(quote! {
+                    #type_ident::#type_variant_ident => Ok(#pick_ident::#pick_variant_ident),
+                }),
             }
         } else {
             remaining_variants.push(type_variant);
         }
+    }
+
+    if remaining_variants.len() > 0 {
+        let ts = remaining_variants.iter().map(|variant| {
+            let ident = &variant.ident;
+            match variant.fields {
+                Fields::Named(_) => quote! {
+                    #type_ident::#ident { .. } => Err(::utility_macros::_um::error::Error::InvalidVariant(stringify!(#ident).to_string())),
+                },
+                Fields::Unnamed(_) => quote! {
+                    #type_ident::#ident(..) => Err(::utility_macros::_um::error::Error::InvalidVariant(stringify!(#ident).to_string())),
+                },
+                Fields::Unit => quote! {
+                    #type_ident::#ident => Err(::utility_macros::_um::error::Error::InvalidVariant(stringify!(#ident).to_string())),
+                },
+            }
+        });
+
+        pick_fn_body.push(quote! {
+            #(#ts)*
+        });
     }
 
     quote! {
