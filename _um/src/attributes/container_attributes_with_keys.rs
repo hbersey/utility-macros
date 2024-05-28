@@ -23,8 +23,8 @@ impl ContainerAttributesWithKeys {
         Ident::new(self.name.as_str(), Span::call_site())
     }
 
-    pub fn keys(&self) -> Vec<String> {
-        self.keys.clone()
+    pub fn keys(&self) -> &Vec<String> {
+        &self.keys
     }
 
     pub fn key_idents(&self) -> Vec<Ident> {
@@ -41,7 +41,7 @@ impl ContainerAttributesWithKeys {
     pub fn field_variant_ident(&self, ident: Ident) -> Ident {
         match self.case_all() {
             Some(case) => Ident::new(ident.to_string().to_case(case).as_str(), ident.span()),
-            None => ident.clone(),
+            None => ident,
         }
     }
 

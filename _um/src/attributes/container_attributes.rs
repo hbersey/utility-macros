@@ -64,7 +64,7 @@ pub trait ContainerAttributes {
     fn field_ident(&self, ident: Ident) -> Ident {
         match self.case_all() {
             Some(case) => Ident::new(ident.to_string().to_case(case).as_str(), ident.span()),
-            None => ident.clone(),
+            None => ident,
         }
     }
 
