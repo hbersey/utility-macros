@@ -5,12 +5,7 @@ use proc_macro2::{Delimiter, Group, Literal, Span, TokenStream, TokenTree};
 use quote::quote;
 use syn::Ident;
 
-use crate::utils::{expect_token, peek_token};
-
-pub fn is_static_str(literal: &Literal) -> bool {
-    let s = literal.to_string();
-    s.starts_with("\"") && s.ends_with("\"")
-}
+use crate::utils::{expect_token, peek_token, LiteralExt};
 
 pub fn union_impl(item: TokenStream) -> TokenStream {
     let mut tokens = item.into_iter().peekable();
@@ -41,7 +36,7 @@ pub fn impl_union(tokens: &mut Peekable<impl Iterator<Item = TokenTree>>) -> Tok
     loop {
         let t = tokens.next();
         match t {
-            Some(TokenTree::Literal(literal)) if is_static_str(&literal) => {
+            Some(TokenTree::Literal(literal)) if LiteralExt::is_str(&literal) => {
                 strings.push(literal);
             }
             Some(TokenTree::Ident(ident)) => {

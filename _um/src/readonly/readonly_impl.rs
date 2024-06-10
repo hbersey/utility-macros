@@ -1,13 +1,13 @@
 use proc_macro2::TokenStream;
-use quote::{format_ident, quote};
+use quote::quote;
 use syn::{Data, DeriveInput, Field};
 
 use crate::{
-    derive::{
-        container_attributes::{container_attributes, ContainerAttributesData},
-        field_attributes::{field_attributes, FieldAttributesContext, FieldAttributesData},
+    attributes::{
+        parse_container_attributes, parse_field_variant_attributes, ContainerAttributes,
+        FieldVariantAttributes,
     },
-    utils::TypeExt as _,
+    utils::{ResultExt as _, TypeExt as _},
 };
 
 pub fn readonly_impl(
@@ -18,16 +18,8 @@ pub fn readonly_impl(
         ..
     }: DeriveInput,
 ) -> TokenStream {
-    let ContainerAttributesData {
-        ident: readonly_ident,
-        derives,
-        rename_all,
-    } = container_attributes("readonly", attrs, format_ident!("Readonly{}", type_ident));
-
-    let field_attr_context = FieldAttributesContext {
-        helper: "readonly",
-        rename_all,
-    };
+    let container_attrs = parse_container_attributes(attrs).or_panic();
+    let ro_container_ident = container_attrs.ident(type_ident.clone());
 
     let Data::Struct(data) = data else {
         panic!("Expected struct")
@@ -46,18 +38,19 @@ pub fn readonly_impl(
     for field in &data.fields {
         let Field {
             ty,
-            ident: type_ident,
+            ident: type_field_ident,
             ..
         } = field;
 
-        let type_ident = type_ident.clone().expect("Expected ident");
+        let type_ident = type_field_ident.clone().expect("Expected ident");
 
-        let FieldAttributesData {
-            ident: readonly_ident,
-            skip,
-        } = field_attributes(&field_attr_context, field);
+        let field_attrs = parse_field_variant_attributes(field.attrs.clone()).or_panic();
+        let ro_field_ident = {
+            let ident = container_attrs.field_ident(type_ident.clone());
+            field_attrs.ident(ident)
+        };
 
-        if skip {
+        if field_attrs.skip() {
             if ty.is_option() {
                 to_type_body.push(quote! {
                     #type_ident: None,
@@ -83,58 +76,52 @@ pub fn readonly_impl(
         });
 
         struct_body.push(quote! {
-            #readonly_ident: #ty,
+            #ro_field_ident: #ty,
         });
 
         impl_new_params.push(quote! {
-            #readonly_ident: #ty
+            #ro_field_ident: #ty
         });
 
         impl_new_body.push(quote! {
-            #readonly_ident
+            #ro_field_ident
         });
 
         impl_getters.push(quote! {
-            pub fn #readonly_ident(&self) -> &#ty {
+            pub fn #ro_field_ident(&self) -> &#ty {
                 &self.#type_ident
             }
         });
 
         to_readonly_body.push(quote! {
-            #readonly_ident: self.#type_ident.clone(),
+            #ro_field_ident: self.#type_ident.clone(),
         });
 
         to_type_body.push(quote! {
-            #type_ident: self.#readonly_ident.clone(),
+            #type_ident: self.#ro_field_ident.clone(),
         });
 
         partial_eq_conditions.push(quote! {
-            self.#type_ident == other.#readonly_ident
+            self.#type_ident == other.#ro_field_ident
         });
     }
 
-    let derives = if derives.is_empty() {
-        quote! {
-            #[derive(Clone, Debug, PartialEq)]
-        }
-    } else {
-        quote! {
-            #[derive(#(#derives),*)]
-        }
-    };
+    let derive_statement = container_attrs
+        .derive_statement("Clone, Debug, PartialEq")
+        .or_panic();
 
     let partial_eq_impl = if impl_partial_eq {
         quote! {
-            impl PartialEq<#readonly_ident> for #type_ident {
-                fn eq(&self, other: &#readonly_ident) -> bool {
+            impl PartialEq<#ro_container_ident> for #type_ident {
+                fn eq(&self, other: &#ro_container_ident) -> bool {
                     #(#partial_eq_conditions)&& *
                 }
             }
         }
     } else {
         quote! {
-            impl PartialEq<#readonly_ident> for #type_ident {
-                fn eq(&self, _: &#readonly_ident) -> bool {
+            impl PartialEq<#ro_container_ident> for #type_ident {
+                fn eq(&self, _: &#ro_container_ident) -> bool {
                     panic!("Partial equality can't be implemented for types that have skipped, non-optional fields");
                 }
             }
@@ -144,12 +131,12 @@ pub fn readonly_impl(
     quote! {
         #(#static_assertions)*
 
-        #derives
-        pub struct #readonly_ident {
+        #derive_statement
+        pub struct #ro_container_ident {
             #(#struct_body)*
         }
 
-        impl #readonly_ident {
+        impl #ro_container_ident {
             pub fn new(#(#impl_new_params),*) -> Self {
                 Self {
                     #(#impl_new_body),*
@@ -160,7 +147,7 @@ pub fn readonly_impl(
         }
 
         impl ::utility_macros::_um::readonly::HasReadonly for #type_ident {
-            type Readonly = #readonly_ident;
+            type Readonly = #ro_container_ident;
 
             fn readonly(&self) -> Self::Readonly {
                 Self::Readonly {
@@ -169,7 +156,7 @@ pub fn readonly_impl(
             }
         }
 
-        impl ::utility_macros::_um::readonly::Readonly for #readonly_ident {
+        impl ::utility_macros::_um::readonly::Readonly for #ro_container_ident {
             type Type = #type_ident;
 
             fn type_(&self) -> Self::Type {
@@ -179,14 +166,14 @@ pub fn readonly_impl(
             }
         }
 
-        impl From<#type_ident> for #readonly_ident {
+        impl From<#type_ident> for #ro_container_ident {
             fn from(value: #type_ident) -> Self {
                 ::utility_macros::_um::readonly::HasReadonly::readonly(&value)
             }
         }
 
-        impl From<#readonly_ident> for #type_ident {
-            fn from(value: #readonly_ident) -> Self {
+        impl From<#ro_container_ident> for #type_ident {
+            fn from(value: #ro_container_ident) -> Self {
                 ::utility_macros::_um::readonly::Readonly::type_(&value)
             }
         }

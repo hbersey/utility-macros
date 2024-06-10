@@ -10,7 +10,7 @@ fn main() {
 }
 
 #[derive(Readonly, Debug, PartialEq, Clone)]
-#[readonly(name = B, derive(Debug, PartialEq, Clone))]
+#[utility_macros(name = "B", derive "Debug, PartialEq, Clone")]
 pub struct A {
     pub x: i32,
     pub y: i32,
