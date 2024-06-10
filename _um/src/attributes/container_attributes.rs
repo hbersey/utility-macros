@@ -9,6 +9,7 @@ use crate::{
     utils::{expect_token, CaseExt as _},
 };
 
+#[derive(Debug, PartialEq)]
 pub enum ContainerAttribute {
     Name(String),
     CaseAll(Case),
@@ -79,15 +80,17 @@ pub trait ContainerAttributes {
     }
 
     fn where_clause(&self) -> Option<&str>;
-    fn where_statement(&self) -> TokenStream {
-        match self.where_clause() {
-            Some(where_clause) => {
-                quote::quote! {
-                    where #where_clause
-                }
-            }
-            None => quote::quote! {},
-        }
+    fn where_statement(&self) -> Result<TokenStream> {
+        let Some(where_clause) = self.where_clause() else {
+            return Ok(TokenStream::new());
+        };
+
+        let where_clause = TokenStream::from_str(where_clause)
+            .map_err(|_| Error::InvalidWhereClause(where_clause.to_string()))?;
+
+        Ok(quote::quote! {
+            where #where_clause
+        })
     }
 }
 

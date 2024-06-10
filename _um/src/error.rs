@@ -25,6 +25,9 @@ pub enum Error {
     /// Invalid derive statement
     #[error("Invalid derive statement `{0}`")]
     InvalidDeriveStatement(String),
+    /// Invalid where clause
+    #[error("Invalid where clause `{0}`")]
+    InvalidWhereClause(String),
 }
 
 /// A type alias for `std::result::Result<T, Error>`
