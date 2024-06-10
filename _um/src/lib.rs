@@ -9,7 +9,6 @@ pub mod required;
 pub mod union;
 
 pub mod attributes;
-pub mod derive;
 
 pub mod utils;
 
