@@ -1,0 +1,8 @@
+[package]
+name = "utility-macros"
+version = "1.0.0-alpha1"
+edition = "2021"
+
+[dependencies]
+thiserror = "2.0"
+derive = { path = "../utility-macros-derive", package = "utility-macros-derive" }
