@@ -7,7 +7,7 @@ Macros based off Typescript's [Utility Types](https://www.typescriptlang.org/doc
 
 - Awaited ❌
 - Partial ✅
-- Required ❌
+- Required ✅
 - Readonly ❌
 - Record ❌
 - Pick ❌
